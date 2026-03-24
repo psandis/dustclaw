@@ -2,7 +2,12 @@
   "name": "dustclaw",
   "version": "0.1.0",
   "description": "Disk space monitoring, analysis, and cleanup CLI",
+  "homepage": "https://github.com/psandis/dustclaw",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/psandis/dustclaw.git"
+  },
   "bin": {
     "dustclaw": "dist/index.js"
   },

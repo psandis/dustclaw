@@ -1,5 +1,7 @@
 # Dustclaw 🦀
 
+[![npm](https://img.shields.io/npm/v/dustclaw?style=flat-square)](https://www.npmjs.com/package/dustclaw)
+
 Find out what is eating your disk space and where the bloat is hiding.
 
 <p align="center">
