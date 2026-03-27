@@ -161,6 +161,7 @@ pnpm lint
 
 - 🦀 [Feedclaw](https://github.com/psandis/feedclaw) — RSS/Atom feed reader and AI digest CLI
 - 🦀 [Driftclaw](https://github.com/psandis/driftclaw) — Deployment drift detection across environments
+- 🦀 [Dietclaw](https://github.com/psandis/dietclaw) — Codebase health monitor
 - 🦀 [OpenClaw](https://github.com/openclaw/openclaw) — Personal AI assistant
 
 ## License
