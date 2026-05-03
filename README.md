@@ -221,7 +221,11 @@ Nothing else is written. To reset state, delete `~/.dustclaw/last-scan.json`.
 
 ```
 src/
-  commands/         # CLI commands (overview, scan, wasteland, clean)
+  commands/
+    overview.ts     # disk usage summary and top N items
+    scan.ts         # deep recursive scan ranked by size
+    wasteland.ts    # known space waster report
+    clean.ts        # interactive cleanup from last wasteland scan
   data/
     config.json     # default configuration (minCacheSizeMb, scanDepth, encoding, ...)
     targets.json    # known waste targets and cache display names
