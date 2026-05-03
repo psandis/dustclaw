@@ -1,7 +1,7 @@
-import { execSync } from "node:child_process";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { resolveCacheNames, resolveConfig, resolveTargets } from "./config.js";
 import { dirSize } from "./scan.js";
 
 export interface WasteEntry {
@@ -9,103 +9,22 @@ export interface WasteEntry {
 	path: string;
 	size: number;
 	description: string;
-}
-
-interface WasteTarget {
-	name: string;
-	path: string | (() => string | null);
-	description: string;
+	safe: boolean;
 }
 
 const home = homedir();
 
-const targets: WasteTarget[] = [
-	{
-		name: "Xcode DerivedData",
-		path: join(home, "Library/Developer/Xcode/DerivedData"),
-		description: "Xcode build artifacts",
-	},
-	{
-		name: "Xcode Archives",
-		path: join(home, "Library/Developer/Xcode/Archives"),
-		description: "Xcode archived builds",
-	},
-	{
-		name: "Xcode Device Support",
-		path: join(home, "Library/Developer/Xcode/iOS DeviceSupport"),
-		description: "iOS device support files",
-	},
-	{
-		name: "Homebrew Cache",
-		path: () => {
-			try {
-				return execSync("brew --cache", { encoding: "utf-8" }).trim();
-			} catch {
-				return null;
-			}
-		},
-		description: "Homebrew downloaded packages",
-	},
-	{
-		name: "Gradle Cache",
-		path: join(home, ".gradle/caches"),
-		description: "Gradle build cache",
-	},
-	{
-		name: "Maven Cache",
-		path: join(home, ".m2/repository"),
-		description: "Maven dependency cache",
-	},
-	{
-		name: "Cargo Cache",
-		path: join(home, ".cargo/registry"),
-		description: "Rust crate cache",
-	},
-	{
-		name: "pnpm Store",
-		path: join(home, "Library/pnpm/store"),
-		description: "pnpm content-addressable store",
-	},
-	{
-		name: "npm Cache",
-		path: join(home, ".npm/_cacache"),
-		description: "npm download cache",
-	},
-	{
-		name: "Docker Desktop",
-		path: join(home, "Library/Containers/com.docker.docker/Data"),
-		description: "Docker images, containers, and volumes",
-	},
-	{
-		name: "iOS Simulators",
-		path: join(home, "Library/Developer/CoreSimulator/Devices"),
-		description: "iOS Simulator device data",
-	},
-	{
-		name: "Android Emulators",
-		path: join(home, ".android/avd"),
-		description: "Android emulator images",
-	},
-	{
-		name: "Trash",
-		path: join(home, ".Trash"),
-		description: "Files in Trash",
-	},
-	{
-		name: "System Logs",
-		path: join(home, "Library/Logs"),
-		description: "Application and system logs",
-	},
-];
-
-const MIN_CACHE_SIZE = 50 * 1024 * 1024; // 50 MB minimum to show in breakdown
+function friendlyName(dirName: string, cacheNames: Record<string, string>): string {
+	return cacheNames[dirName] ?? dirName;
+}
 
 export function findCaches(): WasteEntry[] {
-	const cachesDir = join(home, "Library/Caches");
+	const { minCacheSize, cachesPath, cacheSkipList } = resolveConfig();
+	const cachesDir = join(home, cachesPath);
 	if (!existsSync(cachesDir)) return [];
 
-	// Paths already covered by specific targets — skip to avoid double-counting
-	const skip = new Set(["Homebrew", "CocoaPods", "Yarn"]);
+	const skip = new Set(cacheSkipList);
+	const cacheNames = resolveCacheNames();
 
 	const results: WasteEntry[] = [];
 	let items: string[];
@@ -125,12 +44,13 @@ export function findCaches(): WasteEntry[] {
 			continue;
 		}
 		const size = dirSize(fullPath);
-		if (size >= MIN_CACHE_SIZE) {
+		if (size >= minCacheSize) {
 			results.push({
-				name: `Cache: ${friendlyName(name)}`,
+				name: `Cache: ${friendlyName(name, cacheNames)}`,
 				path: fullPath,
 				size,
-				description: `${name} cache`,
+				description: `${name} application cache`,
+				safe: true,
 			});
 		}
 	}
@@ -138,45 +58,20 @@ export function findCaches(): WasteEntry[] {
 	return results.sort((a, b) => b.size - a.size);
 }
 
-function friendlyName(dirName: string): string {
-	const map: Record<string, string> = {
-		"com.spotify.client": "Spotify",
-		"com.apple.Safari": "Safari",
-		"com.google.Chrome": "Chrome",
-		Google: "Google/Chrome",
-		"com.docker.docker": "Docker",
-		"com.microsoft.VSCode": "VS Code",
-		"com.todesktop.230313mzl4w4u92.ShipIt": "Cursor Updates",
-		"com.google.antigravity.ShipIt": "Chrome Updates",
-		icloudmailagent: "iCloud Mail",
-		"com.apple.callintelligenced": "Apple Call Intelligence",
-		"ms-playwright": "Playwright Browsers",
-		pip: "pip",
-		Cypress: "Cypress",
-		"node-gyp": "node-gyp",
-		typescript: "TypeScript",
-		pnpm: "pnpm",
-		colima: "Colima",
-		"com.openai.codex": "OpenAI Codex",
-	};
-	return map[dirName] ?? dirName;
-}
-
 export function findWaste(): WasteEntry[] {
+	const targets = resolveTargets();
 	const results: WasteEntry[] = [];
 
 	for (const target of targets) {
-		const resolvedPath = typeof target.path === "function" ? target.path() : target.path;
-		if (!resolvedPath) continue;
-		if (!existsSync(resolvedPath)) continue;
-
-		const size = dirSize(resolvedPath);
+		if (!existsSync(target.path)) continue;
+		const size = dirSize(target.path);
 		if (size > 0) {
 			results.push({
 				name: target.name,
-				path: resolvedPath,
+				path: target.path,
 				size,
 				description: target.description,
+				safe: target.safe,
 			});
 		}
 	}
@@ -186,9 +81,10 @@ export function findWaste(): WasteEntry[] {
 	return results.sort((a, b) => b.size - a.size);
 }
 
-export function findNodeModules(root: string, maxDepth = 5): WasteEntry[] {
+export function findNodeModules(root: string, maxDepth?: number): WasteEntry[] {
+	const depth = maxDepth ?? resolveConfig().nodeModulesMaxDepth;
 	const results: WasteEntry[] = [];
-	searchNodeModules(root, results, 0, maxDepth);
+	searchNodeModules(root, results, 0, depth);
 	return results.sort((a, b) => b.size - a.size);
 }
 
@@ -199,6 +95,9 @@ function searchNodeModules(
 	maxDepth: number,
 ): void {
 	if (depth > maxDepth) return;
+
+	const { opaqueDirectories } = resolveConfig();
+	const opaqueSet = new Set(opaqueDirectories);
 
 	let items: string[];
 	try {
@@ -219,10 +118,13 @@ function searchNodeModules(
 					path: fullPath,
 					size,
 					description: `node_modules in ${dir}`,
+					safe: true,
 				});
 			}
 			continue;
 		}
+
+		if (opaqueSet.has(name)) continue;
 
 		try {
 			const stat = statSync(fullPath);

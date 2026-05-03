@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 import chalk from "chalk";
+import { resolveConfig } from "../utils/config.js";
 import { getDiskInfo } from "../utils/disk.js";
 import { boxTable, colorSize, formatPercent, formatSize } from "../utils/format.js";
 import { scanDir } from "../utils/scan.js";
@@ -11,11 +12,12 @@ interface OverviewOptions {
 }
 
 export function overview(opts: OverviewOptions): void {
+	const { overviewDepth } = resolveConfig();
 	const count = Number.parseInt(opts.top, 10);
 	const targetPath = resolve(opts.path);
 
 	const disks = getDiskInfo();
-	const entries = scanDir(targetPath, { depth: 1 });
+	const entries = scanDir(targetPath, { depth: overviewDepth });
 	const topEntries = entries.sort((a, b) => b.size - a.size).slice(0, count);
 
 	if (opts.json) {

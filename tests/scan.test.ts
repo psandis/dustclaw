@@ -22,10 +22,13 @@ describe("dirSize", () => {
 	it("sums nested file sizes", () => {
 		const root = makeTempDir();
 		mkdirSync(join(root, "nested"));
-		writeFileSync(join(root, "a.txt"), "1234");
-		writeFileSync(join(root, "nested", "b.txt"), "123456");
+		writeFileSync(join(root, "a.txt"), Buffer.alloc(5000));
+		writeFileSync(join(root, "nested", "b.txt"), Buffer.alloc(6000));
 
-		expect(dirSize(root)).toBe(10);
+		const total = dirSize(root);
+		const nested = dirSize(join(root, "nested"));
+		expect(total).toBeGreaterThan(nested);
+		expect(total).toBeGreaterThanOrEqual(11000);
 	});
 });
 

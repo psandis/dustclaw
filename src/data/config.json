@@ -1,0 +1,23 @@
+{
+	"minCacheSizeMb": 50,
+	"staleThresholdHours": 24,
+	"nodeModulesMaxDepth": 5,
+	"encoding": "utf-8",
+	"scanDepth": 3,
+	"overviewDepth": 1,
+	"overviewTopCount": 10,
+	"scanTopCount": 20,
+	"blockSize": 512,
+	"cachesPath": "Library/Caches",
+	"cacheSkipList": [
+		"Homebrew",
+		"CocoaPods",
+		"Yarn",
+		"pip",
+		"ms-playwright",
+		"Cypress",
+		"pypoetry",
+		"composer"
+	],
+	"opaqueDirectories": ["node_modules", ".git"]
+}

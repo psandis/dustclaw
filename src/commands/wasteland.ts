@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
 import chalk from "chalk";
 import { boxTable, colorSize, formatSize } from "../utils/format.js";
+import { saveLastScan } from "../utils/state.js";
 import { findNodeModules, findWaste } from "../utils/wasteland.js";
 
 interface WastelandOptions {
@@ -8,7 +9,7 @@ interface WastelandOptions {
 	json?: boolean;
 }
 
-export function wasteland(opts: WastelandOptions): void {
+export async function wasteland(opts: WastelandOptions): Promise<void> {
 	const waste = findWaste();
 
 	let nmEntries: ReturnType<typeof findNodeModules> = [];
@@ -44,6 +45,8 @@ export function wasteland(opts: WastelandOptions): void {
 		return;
 	}
 
+	saveLastScan(allEntries);
+
 	console.log(chalk.bold("\n  Wasteland Report\n"));
 
 	if (waste.length > 0) {
@@ -62,4 +65,5 @@ export function wasteland(opts: WastelandOptions): void {
 	}
 
 	console.log(chalk.bold(`\n  Total reclaimable: ${colorSize(totalSize)}\n`));
+	console.log(chalk.gray("  Scan saved. Run dustclaw clean to remove safe items.\n"));
 }

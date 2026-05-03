@@ -28,8 +28,8 @@ describe("findNodeModules", () => {
 
 		mkdirSync(modulesA, { recursive: true });
 		mkdirSync(modulesB, { recursive: true });
-		writeFileSync(join(modulesA, "small.js"), "123");
-		writeFileSync(join(modulesB, "big.js"), "123456");
+		writeFileSync(join(modulesA, "small.js"), Buffer.alloc(1000));
+		writeFileSync(join(modulesB, "big.js"), Buffer.alloc(100000));
 
 		const results = findNodeModules(root);
 

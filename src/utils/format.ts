@@ -23,9 +23,18 @@ export function formatPercent(ratio: number): string {
 	return chalk.green(text);
 }
 
+function visLen(str: string): number {
+	// biome-ignore lint/suspicious/noControlCharactersInRegex: intentional ANSI escape strip
+	return str.replace(/\x1B\[[0-9;]*m/g, "").length;
+}
+
+function padEndVis(str: string, width: number): string {
+	return str + " ".repeat(Math.max(0, width - visLen(str)));
+}
+
 export function boxTable(headers: string[], rows: string[][]): string {
 	const colWidths = headers.map((h, i) =>
-		Math.max(h.length, ...rows.map((r) => (r[i] ?? "").length)),
+		Math.max(visLen(h), ...rows.map((r) => visLen(r[i] ?? ""))),
 	);
 
 	const sep = `┼${colWidths.map((w) => "─".repeat(w + 2)).join("┼")}┼`;
@@ -33,7 +42,7 @@ export function boxTable(headers: string[], rows: string[][]): string {
 	const bot = `└${colWidths.map((w) => "─".repeat(w + 2)).join("┴")}┘`;
 
 	const fmtRow = (cells: string[]) =>
-		`│${cells.map((c, i) => ` ${c.padEnd(colWidths[i])} `).join("│")}│`;
+		`│${cells.map((c, i) => ` ${padEndVis(c, colWidths[i])} `).join("│")}│`;
 
 	const lines = [top, fmtRow(headers), sep, ...rows.map(fmtRow), bot];
 	return lines.join("\n");

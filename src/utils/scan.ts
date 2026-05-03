@@ -1,5 +1,6 @@
 import { readdirSync, type Stats, statSync } from "node:fs";
 import { join } from "node:path";
+import { resolveConfig } from "./config.js";
 
 export interface ScanEntry {
 	path: string;
@@ -16,7 +17,9 @@ export interface ScanOptions {
 }
 
 export function scanDir(root: string, opts: ScanOptions = {}, currentDepth = 0): ScanEntry[] {
-	const maxDepth = opts.depth ?? 3;
+	const { scanDepth, blockSize, opaqueDirectories } = resolveConfig();
+	const maxDepth = opts.depth ?? scanDepth;
+	const opaqueSet = new Set(opaqueDirectories);
 	const entries: ScanEntry[] = [];
 
 	let items: string[];
@@ -38,7 +41,7 @@ export function scanDir(root: string, opts: ScanOptions = {}, currentDepth = 0):
 		}
 
 		if (stat.isDirectory()) {
-			if (name === "node_modules" || name === ".git") {
+			if (opaqueSet.has(name)) {
 				const size = dirSize(fullPath);
 				if (!opts.filesOnly) {
 					if (!opts.olderThan || stat.mtime < opts.olderThan) {
@@ -64,7 +67,7 @@ export function scanDir(root: string, opts: ScanOptions = {}, currentDepth = 0):
 				if (!opts.olderThan || stat.mtime < opts.olderThan) {
 					entries.push({
 						path: fullPath,
-						size: stat.size,
+						size: stat.blocks * blockSize,
 						isDirectory: false,
 						mtime: stat.mtime,
 					});
@@ -77,6 +80,7 @@ export function scanDir(root: string, opts: ScanOptions = {}, currentDepth = 0):
 }
 
 export function dirSize(dirPath: string): number {
+	const { blockSize } = resolveConfig();
 	let total = 0;
 	let items: string[];
 	try {
@@ -89,7 +93,7 @@ export function dirSize(dirPath: string): number {
 		try {
 			const stat = statSync(fullPath);
 			if (stat.isFile()) {
-				total += stat.size;
+				total += stat.blocks * blockSize;
 			} else if (stat.isDirectory()) {
 				total += dirSize(fullPath);
 			}

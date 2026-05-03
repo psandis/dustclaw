@@ -2,3 +2,5 @@ node_modules/
 dist/
 *.db
 .claude/
+tests/node_modules/
+.DS_Store

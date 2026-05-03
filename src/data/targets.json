@@ -1,0 +1,326 @@
+{
+	"targets": [
+		{
+			"name": "Xcode DerivedData",
+			"path": "~/Library/Developer/Xcode/DerivedData",
+			"description": "Xcode build artifacts, fully regenerated on next build",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "Xcode Device Support",
+			"path": "~/Library/Developer/Xcode/iOS DeviceSupport",
+			"description": "iOS device debug symbols, re-downloaded when device connects",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "Xcode Archives",
+			"path": "~/Library/Developer/Xcode/Archives",
+			"description": "Archived app builds, may contain your only copy of a release",
+			"platform": "mac",
+			"safe": false
+		},
+		{
+			"name": "Xcode Simulators",
+			"path": "~/Library/Developer/CoreSimulator/Devices",
+			"description": "iOS simulator device data, can be recreated but takes time",
+			"platform": "mac",
+			"safe": false
+		},
+		{
+			"name": "npm Cache",
+			"path": "~/.npm/_cacache",
+			"description": "npm download cache, fully regenerated on next install",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "pnpm Store",
+			"path": "~/Library/pnpm/store",
+			"description": "pnpm content-addressable store shared across all projects",
+			"platform": "mac",
+			"safe": false
+		},
+		{
+			"name": "pnpm Store",
+			"path": "~/.local/share/pnpm/store",
+			"description": "pnpm content-addressable store shared across all projects",
+			"platform": "linux",
+			"safe": false
+		},
+		{
+			"name": "Yarn Cache",
+			"path": "~/.cache/yarn",
+			"description": "Yarn download cache, fully regenerated on next install",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "Bun Cache",
+			"path": "~/.bun/install/cache",
+			"description": "Bun package cache, fully regenerated on next install",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "Gradle Cache",
+			"path": "~/.gradle/caches",
+			"description": "Gradle build and dependency cache, re-downloaded on next build",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "Gradle Daemon",
+			"path": "~/.gradle/daemon",
+			"description": "Gradle daemon logs and metadata",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "Maven Cache",
+			"path": "~/.m2/repository",
+			"description": "Maven local repository, re-downloaded on next build",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "Android Emulators",
+			"path": "~/.android/avd",
+			"description": "Android emulator images and user data",
+			"platform": "all",
+			"safe": false
+		},
+		{
+			"name": "Android Cache",
+			"path": "~/.android/cache",
+			"description": "Android SDK download cache",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "Cargo Registry",
+			"path": "~/.cargo/registry",
+			"description": "Rust crate source cache, re-downloaded on next build",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "Cargo Git",
+			"path": "~/.cargo/git",
+			"description": "Rust git dependency cache, re-downloaded on next build",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "pip Cache",
+			"path": "~/Library/Caches/pip",
+			"description": "pip download cache, fully regenerated on next install",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "pip Cache",
+			"path": "~/.cache/pip",
+			"description": "pip download cache, fully regenerated on next install",
+			"platform": "linux",
+			"safe": true
+		},
+		{
+			"name": "pypoetry Cache",
+			"path": "~/Library/Caches/pypoetry",
+			"description": "Poetry package cache, fully regenerated on next install",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "pypoetry Cache",
+			"path": "~/.cache/pypoetry",
+			"description": "Poetry package cache, fully regenerated on next install",
+			"platform": "linux",
+			"safe": true
+		},
+		{
+			"name": "Bundler Cache",
+			"path": "~/.bundle/cache",
+			"description": "Bundler gem cache, re-downloaded on next bundle install",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "CocoaPods Cache",
+			"path": "~/Library/Caches/CocoaPods",
+			"description": "CocoaPods download cache, re-downloaded on next pod install",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "Go Module Cache",
+			"path": "~/go/pkg/mod",
+			"description": "Go module cache, re-downloaded on next go build",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "Go Build Cache",
+			"path": "~/Library/Caches/go-build",
+			"description": "Go build cache, fully regenerated on next build",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "Go Build Cache",
+			"path": "~/.cache/go-build",
+			"description": "Go build cache, fully regenerated on next build",
+			"platform": "linux",
+			"safe": true
+		},
+		{
+			"name": "Composer Cache",
+			"path": "~/Library/Caches/composer",
+			"description": "Composer package cache, re-downloaded on next install",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "Composer Cache",
+			"path": "~/.cache/composer",
+			"description": "Composer package cache, re-downloaded on next install",
+			"platform": "linux",
+			"safe": true
+		},
+		{
+			"name": "Homebrew Cache",
+			"path": "~/Library/Caches/Homebrew",
+			"description": "Homebrew downloaded package cache, re-downloaded on next install",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "Docker Desktop",
+			"path": "~/Library/Containers/com.docker.docker/Data",
+			"description": "Docker images, containers, and volumes",
+			"platform": "mac",
+			"safe": false
+		},
+		{
+			"name": "Playwright Browsers",
+			"path": "~/Library/Caches/ms-playwright",
+			"description": "Playwright browser binaries, re-downloaded on next install",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "Playwright Browsers",
+			"path": "~/.cache/ms-playwright",
+			"description": "Playwright browser binaries, re-downloaded on next install",
+			"platform": "linux",
+			"safe": true
+		},
+		{
+			"name": "Cypress Cache",
+			"path": "~/Library/Caches/Cypress",
+			"description": "Cypress browser binaries, re-downloaded on next install",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "Cypress Cache",
+			"path": "~/.cache/Cypress",
+			"description": "Cypress browser binaries, re-downloaded on next install",
+			"platform": "linux",
+			"safe": true
+		},
+		{
+			"name": "Puppeteer Cache",
+			"path": "~/.cache/puppeteer",
+			"description": "Puppeteer Chrome binaries, re-downloaded on next install",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "Terraform Plugins",
+			"path": "~/.terraform.d/plugin-cache",
+			"description": "Terraform provider plugin cache, re-downloaded on next init",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "Helm Cache",
+			"path": "~/Library/Caches/helm",
+			"description": "Helm chart repository cache, rebuilt by helm repo update",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "Helm Cache",
+			"path": "~/.cache/helm",
+			"description": "Helm chart repository cache, rebuilt by helm repo update",
+			"platform": "linux",
+			"safe": true
+		},
+		{
+			"name": "Ollama Models",
+			"path": "~/.ollama/models",
+			"description": "Downloaded Ollama AI models, safe only if willing to re-download",
+			"platform": "all",
+			"safe": false
+		},
+		{
+			"name": "Hugging Face Cache",
+			"path": "~/.cache/huggingface",
+			"description": "Hugging Face model cache, re-downloaded on next use",
+			"platform": "all",
+			"safe": true
+		},
+		{
+			"name": "Trash",
+			"path": "~/.Trash",
+			"description": "Files waiting in Trash",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "System Logs",
+			"path": "~/Library/Logs",
+			"description": "Application and system log files",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "Thumbnail Cache",
+			"path": "~/.cache/thumbnails",
+			"description": "File manager thumbnail cache, rebuilt as you browse",
+			"platform": "linux",
+			"safe": true
+		}
+	],
+	"cacheNames": {
+		"com.spotify.client": "Spotify",
+		"com.apple.Safari": "Safari",
+		"com.google.Chrome": "Chrome",
+		"Google": "Google/Chrome",
+		"com.docker.docker": "Docker",
+		"com.microsoft.VSCode": "VS Code",
+		"com.todesktop.230313mzl4w4u92": "Cursor",
+		"com.todesktop.230313mzl4w4u92.ShipIt": "Cursor Updates",
+		"com.google.antigravity.ShipIt": "Chrome Updates",
+		"icloudmailagent": "iCloud Mail",
+		"com.apple.callintelligenced": "Apple Call Intelligence",
+		"ms-playwright": "Playwright Browsers",
+		"ms-playwright-go": "Playwright Go Browsers",
+		"pip": "pip",
+		"Cypress": "Cypress",
+		"node-gyp": "node-gyp",
+		"typescript": "TypeScript",
+		"pnpm": "pnpm",
+		"colima": "Colima",
+		"com.openai.chat": "ChatGPT",
+		"com.openai.codex": "OpenAI Codex",
+		"ollama": "Ollama",
+		"pypoetry": "pypoetry",
+		"composer": "Composer",
+		"us.zoom.xos": "Zoom",
+		"GeoServices": "GeoServices"
+	}
+}
