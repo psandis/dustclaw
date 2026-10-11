@@ -44,7 +44,8 @@ describe("findNodeModules", () => {
 		const deepModules = join(root, "a", "b", "c", "d", "e", "f", "node_modules");
 
 		mkdirSync(deepModules, { recursive: true });
-		writeFileSync(join(deepModules, "pkg.json"), "{}");
+		// Not a tiny file: NTFS stores those inside the file table with zero allocated size.
+		writeFileSync(join(deepModules, "pkg.json"), Buffer.alloc(5000));
 
 		expect(findNodeModules(root, 5)).toHaveLength(0);
 		expect(findNodeModules(root, 6)).toHaveLength(1);
