@@ -3,7 +3,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clean } from "../src/commands/clean.js";
-import { resolveTargets } from "../src/utils/config.js";
+import { currentPlatform, resolveTargets } from "../src/utils/config.js";
 import { saveLastScan, staleThresholdMs } from "../src/utils/state.js";
 import { findNodeModules } from "../src/utils/wasteland.js";
 
@@ -31,7 +31,7 @@ afterEach(() => {
 describe("resolveTargets", () => {
 	it("returns only targets matching current platform", () => {
 		const targets = resolveTargets();
-		const platform = process.platform === "darwin" ? "mac" : "linux";
+		const platform = currentPlatform();
 		const wrong = targets.filter((t) => t.platform !== platform && t.platform !== "all");
 		expect(wrong).toHaveLength(0);
 	});

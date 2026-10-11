@@ -1,4 +1,4 @@
-import { lstatSync, readdirSync, type Stats } from "node:fs";
+import { lstatSync, readdirSync, type Stats, statSync } from "node:fs";
 import { join } from "node:path";
 import { resolveConfig } from "./config.js";
 
@@ -35,7 +35,7 @@ export function scanDir(root: string, opts: ScanOptions = {}, currentDepth = 0):
 		const fullPath = join(root, name);
 		let stat: Stats;
 		try {
-			stat = lstatSync(fullPath);
+			stat = statSync(fullPath);
 		} catch {
 			continue;
 		}

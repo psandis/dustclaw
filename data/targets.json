@@ -51,6 +51,13 @@
 		},
 		{
 			"name": "Yarn Cache",
+			"path": "~/Library/Caches/Yarn",
+			"description": "Yarn download cache, fully regenerated on next install",
+			"platform": "mac",
+			"safe": true
+		},
+		{
+			"name": "Yarn Cache",
 			"path": "~/.cache/yarn",
 			"description": "Yarn download cache, fully regenerated on next install",
 			"platform": "all",
@@ -292,6 +299,69 @@
 			"path": "~/.cache/thumbnails",
 			"description": "File manager thumbnail cache, rebuilt as you browse",
 			"platform": "linux",
+			"safe": true
+		},
+		{
+			"name": "npm Cache",
+			"path": "~/AppData/Local/npm-cache/_cacache",
+			"description": "npm download cache, fully regenerated on next install",
+			"platform": "windows",
+			"safe": true
+		},
+		{
+			"name": "pnpm Store",
+			"path": "~/AppData/Local/pnpm/store",
+			"description": "pnpm content-addressable store shared across all projects",
+			"platform": "windows",
+			"safe": false
+		},
+		{
+			"name": "Yarn Cache",
+			"path": "~/AppData/Local/Yarn/Cache",
+			"description": "Yarn download cache, fully regenerated on next install",
+			"platform": "windows",
+			"safe": true
+		},
+		{
+			"name": "pip Cache",
+			"path": "~/AppData/Local/pip/Cache",
+			"description": "pip download cache, fully regenerated on next install",
+			"platform": "windows",
+			"safe": true
+		},
+		{
+			"name": "pypoetry Cache",
+			"path": "~/AppData/Local/pypoetry/Cache",
+			"description": "Poetry package cache, fully regenerated on next install",
+			"platform": "windows",
+			"safe": true
+		},
+		{
+			"name": "Go Build Cache",
+			"path": "~/AppData/Local/go-build",
+			"description": "Go build cache, fully regenerated on next build",
+			"platform": "windows",
+			"safe": true
+		},
+		{
+			"name": "Composer Cache",
+			"path": "~/AppData/Local/Composer",
+			"description": "Composer package cache, re-downloaded on next install",
+			"platform": "windows",
+			"safe": true
+		},
+		{
+			"name": "Playwright Browsers",
+			"path": "~/AppData/Local/ms-playwright",
+			"description": "Playwright browser binaries, re-downloaded on next install",
+			"platform": "windows",
+			"safe": true
+		},
+		{
+			"name": "Cypress Cache",
+			"path": "~/AppData/Local/Cypress/Cache",
+			"description": "Cypress browser binaries, re-downloaded on next install",
+			"platform": "windows",
 			"safe": true
 		}
 	],

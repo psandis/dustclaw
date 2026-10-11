@@ -13,12 +13,12 @@ export interface ScanState {
 }
 
 export function saveLastScan(entries: WasteEntry[]): void {
+	writeScanState({ scannedAt: new Date().toISOString(), entries });
+}
+
+export function writeScanState(state: ScanState): void {
 	const { encoding } = resolveConfig();
 	mkdirSync(STATE_DIR, { recursive: true });
-	const state: ScanState = {
-		scannedAt: new Date().toISOString(),
-		entries,
-	};
 	writeFileSync(SCAN_FILE, JSON.stringify(state, null, 2), encoding);
 }
 

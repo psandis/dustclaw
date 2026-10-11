@@ -3,11 +3,19 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+export type Platform = "mac" | "linux" | "windows";
+
+export function currentPlatform(): Platform {
+	if (process.platform === "darwin") return "mac";
+	if (process.platform === "win32") return "windows";
+	return "linux";
+}
+
 export interface TargetDef {
 	name: string;
 	path: string;
 	description: string;
-	platform: "mac" | "linux" | "all";
+	platform: Platform | "all";
 	safe: boolean;
 }
 
@@ -137,8 +145,15 @@ export function resolveCacheNames(): Record<string, string> {
 	return loadTargetsFile().cacheNames;
 }
 
+// join, not string replace, so Windows paths get backslashes throughout.
+function expandHome(path: string): string {
+	if (path === "~") return homedir();
+	if (path.startsWith("~/") || path.startsWith("~\\")) return join(homedir(), path.slice(2));
+	return path;
+}
+
 export function resolveTargets(): TargetDef[] {
-	const platform = process.platform === "darwin" ? "mac" : "linux";
+	const platform = currentPlatform();
 	const base = loadTargetsFile().targets.filter(
 		(t) => t.platform === platform || t.platform === "all",
 	);
@@ -146,7 +161,7 @@ export function resolveTargets(): TargetDef[] {
 
 	const overrides = user.overrides ?? {};
 	const merged = base.map((t) => {
-		const expanded = { ...t, path: t.path.replace(/^~/, homedir()) };
+		const expanded = { ...t, path: expandHome(t.path) };
 		return overrides[t.name] !== undefined
 			? { ...expanded, safe: overrides[t.name].safe }
 			: expanded;
@@ -154,7 +169,7 @@ export function resolveTargets(): TargetDef[] {
 
 	const custom: TargetDef[] = (user.targets ?? []).map((t) => ({
 		name: t.name,
-		path: t.path.replace(/^~/, homedir()),
+		path: expandHome(t.path),
 		description: t.description ?? "",
 		platform: "all" as const,
 		safe: t.safe,

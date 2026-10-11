@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { resolveCacheNames, resolveConfig, resolveTargets } from "./config.js";
@@ -125,7 +125,7 @@ function searchNodeModules(
 		if (opaqueSet.has(name)) continue;
 
 		try {
-			const stat = lstatSync(fullPath);
+			const stat = statSync(fullPath);
 			if (stat.isDirectory()) {
 				searchNodeModules(fullPath, results, depth + 1, maxDepth, opaqueSet);
 			}

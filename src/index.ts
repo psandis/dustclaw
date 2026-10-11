@@ -9,13 +9,19 @@ import { wasteland } from "./commands/wasteland.js";
 import { resolveConfig } from "./utils/config.js";
 import { parseAge } from "./utils/scan.js";
 
-function positiveIntOption(value: string): number {
-	const n = Number(value);
-	if (!Number.isInteger(n) || n < 1) {
-		throw new InvalidArgumentError("Must be a whole number of 1 or more.");
-	}
-	return n;
+function intOption(min: number): (value: string) => number {
+	return (value) => {
+		const n = Number(value);
+		if (!Number.isInteger(n) || n < min) {
+			throw new InvalidArgumentError(`Must be a whole number of ${min} or more.`);
+		}
+		return n;
+	};
 }
+
+// Depth 0 is valid: each top-level item is listed with its total size.
+const countOption = intOption(1);
+const depthOption = intOption(0);
 
 function ageOption(value: string): Date {
 	try {
@@ -60,7 +66,7 @@ Examples:
 program
 	.command("overview [path]", { isDefault: true })
 	.description(`Quick overview: disk usage, free space, top ${overviewTopCount} biggest items`)
-	.option("-n, --top <count>", "Number of top items to show", positiveIntOption, overviewTopCount)
+	.option("-n, --top <count>", "Number of top items to show", countOption, overviewTopCount)
 	.option("-p, --path <path>", "Path to analyze (same as the positional path)", ".")
 	.option("--json", "Output as JSON")
 	.action((path: string | undefined, opts) => overview({ ...opts, path: path ?? opts.path }));
@@ -68,8 +74,8 @@ program
 program
 	.command("scan [path]")
 	.description("Deep scan: ranked list of largest files and folders")
-	.option("-n, --top <count>", "Number of top items to show", positiveIntOption, scanTopCount)
-	.option("-d, --depth <depth>", "Max directory depth", positiveIntOption, scanDepth)
+	.option("-n, --top <count>", "Number of top items to show", countOption, scanTopCount)
+	.option("-d, --depth <depth>", "Max directory depth", depthOption, scanDepth)
 	.option("--older-than <age>", "Filter by age (e.g. 30d, 6m, 1y)", ageOption)
 	.option("--files-only", "Show only files, not directories")
 	.option("--dirs-only", "Show only directories, not files")

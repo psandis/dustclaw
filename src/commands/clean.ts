@@ -2,7 +2,7 @@ import { rmSync } from "node:fs";
 import { createInterface } from "node:readline";
 import chalk from "chalk";
 import { boxTable, colorSize, formatSize } from "../utils/format.js";
-import { loadLastScan, scanAgePath, staleThresholdMs } from "../utils/state.js";
+import { loadLastScan, scanAgePath, staleThresholdMs, writeScanState } from "../utils/state.js";
 import type { WasteEntry } from "../utils/wasteland.js";
 
 interface CleanOptions {
@@ -10,14 +10,19 @@ interface CleanOptions {
 	only?: string;
 }
 
-function ask(question: string): Promise<string> {
-	const rl = createInterface({ input: process.stdin, output: process.stdout });
-	return new Promise((resolve) => {
-		rl.question(question, (answer) => {
-			rl.close();
-			resolve(answer.trim().toLowerCase());
-		});
-	});
+// One reader for the whole session. A new reader per question loses piped
+// input: the first one buffers every line and the rest are dropped.
+function createPrompter(): { ask: (question: string) => Promise<string>; close: () => void } {
+	const rl = createInterface({ input: process.stdin, terminal: false });
+	const lines = rl[Symbol.asyncIterator]();
+	return {
+		ask: async (question) => {
+			process.stdout.write(question);
+			const { value, done } = await lines.next();
+			return done ? "" : String(value).trim().toLowerCase();
+		},
+		close: () => rl.close(),
+	};
 }
 
 function deleteEntry(entry: WasteEntry): void {
@@ -94,17 +99,34 @@ export async function clean(opts: CleanOptions): Promise<void> {
 	console.log(chalk.red.bold("  WARNING: Deletion is permanent. There is no undo.\n"));
 
 	let freed = 0;
-	for (const entry of safe) {
-		const answer = await ask(
-			`  Delete ${chalk.bold(entry.name)} (${formatSize(entry.size)})? [y/N] `,
-		);
-		if (answer === "y") {
-			deleteEntry(entry);
+	const deleted = new Set<string>();
+	const prompter = createPrompter();
+	try {
+		for (const entry of safe) {
+			const answer = await prompter.ask(
+				`  Delete ${chalk.bold(entry.name)} (${formatSize(entry.size)})? [y/N] `,
+			);
+			if (answer !== "y") {
+				console.log(chalk.gray(`  Skipped: ${entry.path}`));
+				continue;
+			}
+			try {
+				deleteEntry(entry);
+			} catch (err) {
+				console.log(chalk.red(`  Failed: ${entry.path} (${(err as Error).message})`));
+				continue;
+			}
+			deleted.add(entry.path);
 			freed += entry.size;
 			console.log(chalk.green(`  Deleted: ${entry.path}`));
-		} else {
-			console.log(chalk.gray(`  Skipped: ${entry.path}`));
 		}
+	} finally {
+		prompter.close();
+	}
+
+	// Keep the original scan time so the stale warning stays accurate.
+	if (deleted.size > 0) {
+		writeScanState({ ...state, entries: state.entries.filter((e) => !deleted.has(e.path)) });
 	}
 
 	console.log(chalk.bold(`\n  Freed: ${colorSize(freed)}\n`));

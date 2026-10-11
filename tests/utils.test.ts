@@ -1,7 +1,10 @@
+import { readFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { resolveConfig, resolveTargets } from "../src/utils/config.js";
-import { usedRatio } from "../src/utils/disk.js";
+import { currentPlatform, resolveConfig, resolveTargets } from "../src/utils/config.js";
+import { getDiskInfo, usedRatio } from "../src/utils/disk.js";
 import { boxTable, formatSize } from "../src/utils/format.js";
 import { parseAge } from "../src/utils/scan.js";
 
@@ -15,6 +18,79 @@ describe("bundled data", () => {
 	it("loads defaults and targets from the package data folder", () => {
 		expect(resolveConfig().scanDepth).toBeGreaterThan(0);
 		expect(resolveTargets().length).toBeGreaterThan(0);
+	});
+
+	it("covers every skipped cache folder with a macOS target", () => {
+		const { cacheSkipList, cachesPath } = resolveConfig();
+		const targets: { path: string; platform: string }[] = JSON.parse(
+			readFileSync(fileURLToPath(new URL("../data/targets.json", import.meta.url)), "utf-8"),
+		).targets;
+		const macPaths = targets
+			.filter((t) => t.platform === "mac" || t.platform === "all")
+			.map((t) => t.path);
+		for (const name of cacheSkipList) {
+			expect(macPaths, name).toContain(`~/${cachesPath}/${name}`);
+		}
+	});
+});
+
+describe("platform targets", () => {
+	const realPlatform = process.platform;
+
+	function withPlatform<T>(value: NodeJS.Platform, fn: () => T): T {
+		Object.defineProperty(process, "platform", { value, configurable: true });
+		try {
+			return fn();
+		} finally {
+			Object.defineProperty(process, "platform", { value: realPlatform, configurable: true });
+		}
+	}
+
+	it.each([
+		["darwin", "mac"],
+		["linux", "linux"],
+		["win32", "windows"],
+	] as const)("maps %s to %s", (nodePlatform, expected) => {
+		expect(withPlatform(nodePlatform, currentPlatform)).toBe(expected);
+	});
+
+	it.each(["darwin", "linux", "win32"] as const)("%s gets only its own and shared targets", (p) => {
+		const own = withPlatform(p, currentPlatform);
+		const targets = withPlatform(p, resolveTargets);
+		expect(targets.length).toBeGreaterThan(0);
+		for (const t of targets) expect(["all", own]).toContain(t.platform);
+	});
+
+	it("gives Windows the AppData cache locations", () => {
+		const paths = withPlatform("win32", resolveTargets).map((t) => t.path);
+		expect(paths).toContain(join(homedir(), "AppData/Local/npm-cache/_cacache"));
+		expect(paths).toContain(join(homedir(), "AppData/Local/pip/Cache"));
+		expect(paths).not.toContain(join(homedir(), "Library/Caches/Homebrew"));
+	});
+
+	it("has a valid definition for every target", () => {
+		const { targets } = JSON.parse(
+			readFileSync(fileURLToPath(new URL("../data/targets.json", import.meta.url)), "utf-8"),
+		) as { targets: Record<string, unknown>[] };
+		for (const t of targets) {
+			expect(typeof t.name, JSON.stringify(t)).toBe("string");
+			expect(String(t.path).startsWith("~/"), JSON.stringify(t)).toBe(true);
+			expect(["mac", "linux", "windows", "all"], JSON.stringify(t)).toContain(t.platform);
+			expect(typeof t.safe, JSON.stringify(t)).toBe("boolean");
+		}
+	});
+});
+
+describe("getDiskInfo", () => {
+	it("reports at least one disk with consistent sizes on this platform", () => {
+		const disks = getDiskInfo();
+		expect(disks.length).toBeGreaterThan(0);
+		for (const d of disks) {
+			expect(d.total).toBeGreaterThan(0);
+			expect(d.used).toBeGreaterThanOrEqual(0);
+			expect(d.available).toBeGreaterThanOrEqual(0);
+			expect(d.used + d.available).toBeLessThanOrEqual(d.total);
+		}
 	});
 });
 

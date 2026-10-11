@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import { statfsSync } from "node:fs";
 import { platform } from "node:os";
 
 export interface DiskInfo {
@@ -11,6 +12,8 @@ export interface DiskInfo {
 
 export function getDiskInfo(): DiskInfo[] {
 	const os = platform();
+
+	if (os === "win32") return getWindowsDiskInfo();
 
 	if (os !== "darwin" && os !== "linux") {
 		throw new Error(`Unsupported platform: ${os}`);
@@ -37,6 +40,26 @@ export function getDiskInfo(): DiskInfo[] {
 		}
 	}
 
+	return disks;
+}
+
+// Windows has no df. statfs reads each drive's volume information directly.
+// A: and B: are skipped because they are reserved for floppy drives.
+function getWindowsDiskInfo(): DiskInfo[] {
+	const disks: DiskInfo[] = [];
+	for (const letter of "CDEFGHIJKLMNOPQRSTUVWXYZ") {
+		const root = `${letter}:\\`;
+		try {
+			const fs = statfsSync(root);
+			disks.push({
+				filesystem: `${letter}:`,
+				total: fs.blocks * fs.bsize,
+				used: (fs.blocks - fs.bfree) * fs.bsize,
+				available: fs.bavail * fs.bsize,
+				mountpoint: root,
+			});
+		} catch {}
+	}
 	return disks;
 }
 

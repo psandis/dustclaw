@@ -21,6 +21,9 @@ export async function wasteland(opts: WastelandOptions): Promise<void> {
 	const allEntries = [...waste, ...nmEntries];
 	const totalSize = allEntries.reduce((sum, e) => sum + e.size, 0);
 
+	// Always saved, even for --json or an empty result, so clean never acts on an older scan.
+	saveLastScan(allEntries);
+
 	if (opts.json) {
 		console.log(
 			JSON.stringify(
@@ -44,8 +47,6 @@ export async function wasteland(opts: WastelandOptions): Promise<void> {
 		console.log(chalk.green("\n  No wasteland found. Your disk is clean!\n"));
 		return;
 	}
-
-	saveLastScan(allEntries);
 
 	console.log(chalk.bold("\n  Wasteland Report\n"));
 

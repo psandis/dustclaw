@@ -1,6 +1,6 @@
 {
   "name": "dustclaw",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Disk space monitoring, analysis, and cleanup CLI",
   "engines": {
     "node": ">=22.12.0"

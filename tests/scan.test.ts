@@ -58,6 +58,26 @@ describe("scanDir", () => {
 		expect(deep.some((entry) => entry.path.endsWith("deep.txt"))).toBe(true);
 	});
 
+	it("depth 0 lists each top-level item with its total size", () => {
+		const root = makeTempDir();
+		mkdirSync(join(root, "level1", "level2"), { recursive: true });
+		writeFileSync(join(root, "level1", "level2", "deep.txt"), Buffer.alloc(6000));
+
+		const entries = scanDir(root, { depth: 0 });
+		expect(entries).toHaveLength(1);
+		expect(entries[0].path).toBe(join(root, "level1"));
+		expect(entries[0].size).toBe(dirSize(join(root, "level1")));
+	});
+
+	it("still lists symlinked files", () => {
+		const root = makeTempDir();
+		writeFileSync(join(root, "real.txt"), Buffer.alloc(5000));
+		symlinkSync(join(root, "real.txt"), join(root, "link.txt"));
+
+		const entries = scanDir(root, { depth: 1 });
+		expect(entries.some((entry) => entry.path.endsWith("link.txt"))).toBe(true);
+	});
+
 	it("filters files and directories independently", () => {
 		const root = makeTempDir();
 		mkdirSync(join(root, "folder"));
