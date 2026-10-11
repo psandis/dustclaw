@@ -39,3 +39,10 @@ export function getDiskInfo(): DiskInfo[] {
 
 	return disks;
 }
+
+// Same as df's Capacity column. Dividing by total is wrong on APFS, where every
+// volume reports the whole shared container as its total.
+export function usedRatio(disk: DiskInfo): number {
+	const usable = disk.used + disk.available;
+	return usable === 0 ? 0 : disk.used / usable;
+}

@@ -1,12 +1,12 @@
 import { resolve } from "node:path";
 import chalk from "chalk";
 import { boxTable, colorSize } from "../utils/format.js";
-import { parseAge, type ScanOptions, scanDir } from "../utils/scan.js";
+import { type ScanOptions, scanDir } from "../utils/scan.js";
 
 interface ScanCommandOptions {
-	top: string;
-	depth: string;
-	olderThan?: string;
+	top: number;
+	depth: number;
+	olderThan?: Date;
 	filesOnly?: boolean;
 	dirsOnly?: boolean;
 	json?: boolean;
@@ -14,17 +14,14 @@ interface ScanCommandOptions {
 
 export function scan(path: string | undefined, opts: ScanCommandOptions): void {
 	const targetPath = resolve(path ?? ".");
-	const count = Number.parseInt(opts.top, 10);
+	const count = opts.top;
 
 	const scanOpts: ScanOptions = {
-		depth: Number.parseInt(opts.depth, 10),
+		depth: opts.depth,
 		filesOnly: opts.filesOnly,
 		dirsOnly: opts.dirsOnly,
+		olderThan: opts.olderThan,
 	};
-
-	if (opts.olderThan) {
-		scanOpts.olderThan = parseAge(opts.olderThan);
-	}
 
 	const entries = scanDir(targetPath, scanOpts);
 	const sorted = entries.sort((a, b) => b.size - a.size).slice(0, count);

@@ -83,14 +83,14 @@ npx dustclaw clean --force
 
 | Command | What it does |
 |---------|-------------|
-| `dustclaw` | Quick overview: disk usage, free space, top 10 biggest items |
+| `dustclaw [path]` | Quick overview: disk usage, free space, top 10 biggest items |
 | `dustclaw scan [path]` | Deep scan: ranked list of largest files and folders |
 | `dustclaw wasteland` | Finds known space wasters: caches, build artifacts, Trash, Docker |
 | `dustclaw clean` | Clean safe items from last wasteland scan (dry run by default) |
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 22.12+
 - macOS or Linux
 
 ## Install
@@ -111,8 +111,8 @@ npx dustclaw
 
 ```bash
 dustclaw
+dustclaw ~/Projects         # overview of a specific path
 dustclaw -n 20              # show top 20 instead of 10
-dustclaw -p ~/Projects      # scan a specific path
 ```
 
 ### Scan
@@ -220,15 +220,15 @@ Nothing else is written. To reset state, delete `~/.dustclaw/last-scan.json`.
 ## Project Structure
 
 ```
+data/
+  config.json       # default configuration (minCacheSizeMb, scanDepth, encoding, ...)
+  targets.json      # known waste targets and cache display names
 src/
   commands/
     overview.ts     # disk usage summary and top N items
     scan.ts         # deep recursive scan ranked by size
     wasteland.ts    # known space waster report
     clean.ts        # interactive cleanup from last wasteland scan
-  data/
-    config.json     # default configuration (minCacheSizeMb, scanDepth, encoding, ...)
-    targets.json    # known waste targets and cache display names
   utils/
     config.ts       # loads and merges config.json with ~/.dustclaw.json
     disk.ts         # disk info via df
@@ -239,7 +239,7 @@ src/
   index.ts          # CLI entry point
 ```
 
-All behavior is driven by `src/data/config.json` and `src/data/targets.json`. To add a new waste target or change defaults, edit those files — no code changes needed.
+All behavior is driven by `data/config.json` and `data/targets.json`. To add a new waste target or change defaults, edit those files. No code changes needed.
 
 ## Standing on the Shoulders of Giants
 

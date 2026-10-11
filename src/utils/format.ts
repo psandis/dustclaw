@@ -37,7 +37,7 @@ export function boxTable(headers: string[], rows: string[][]): string {
 		Math.max(visLen(h), ...rows.map((r) => visLen(r[i] ?? ""))),
 	);
 
-	const sep = `┼${colWidths.map((w) => "─".repeat(w + 2)).join("┼")}┼`;
+	const sep = `├${colWidths.map((w) => "─".repeat(w + 2)).join("┼")}┤`;
 	const top = `┌${colWidths.map((w) => "─".repeat(w + 2)).join("┬")}┐`;
 	const bot = `└${colWidths.map((w) => "─".repeat(w + 2)).join("┴")}┘`;
 

@@ -69,9 +69,16 @@ interface UserConfig {
 
 const USER_CONFIG_PATH = join(homedir(), ".dustclaw.json");
 
+// Bundled defaults live in <package root>/data. This file runs from either
+// src/utils (dev, tests) or dist/utils (build), both two levels below the root.
+const DATA_DIR = fileURLToPath(new URL("../../data/", import.meta.url));
+
+function loadDataFile<T>(name: string): T {
+	return JSON.parse(readFileSync(join(DATA_DIR, name), "utf-8")) as T;
+}
+
 function loadDefaultConfig(): RawConfig {
-	const file = fileURLToPath(new URL("../data/config.json", import.meta.url));
-	return JSON.parse(readFileSync(file, "utf-8")) as RawConfig;
+	return loadDataFile<RawConfig>("config.json");
 }
 
 function loadUserConfig(): UserConfig {
@@ -83,7 +90,17 @@ function loadUserConfig(): UserConfig {
 	}
 }
 
+// Config is read once per process. The scanners call resolveConfig() for every
+// directory they visit, so re-reading the JSON files each time is very slow.
+let cachedConfig: DustclawConfig | undefined;
+let cachedTargetsFile: TargetsFile | undefined;
+
 export function resolveConfig(): DustclawConfig {
+	cachedConfig ??= buildConfig();
+	return cachedConfig;
+}
+
+function buildConfig(): DustclawConfig {
 	const defaults = loadDefaultConfig();
 	const user = loadUserConfig();
 	const minCacheSizeMb = user.minCacheSizeMb ?? defaults.minCacheSizeMb;
@@ -112,8 +129,8 @@ interface TargetsFile {
 }
 
 function loadTargetsFile(): TargetsFile {
-	const file = fileURLToPath(new URL("../data/targets.json", import.meta.url));
-	return JSON.parse(readFileSync(file, "utf-8")) as TargetsFile;
+	cachedTargetsFile ??= loadDataFile<TargetsFile>("targets.json");
+	return cachedTargetsFile;
 }
 
 export function resolveCacheNames(): Record<string, string> {

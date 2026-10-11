@@ -1,4 +1,4 @@
-import { readdirSync, type Stats, statSync } from "node:fs";
+import { lstatSync, readdirSync, type Stats } from "node:fs";
 import { join } from "node:path";
 import { resolveConfig } from "./config.js";
 
@@ -35,7 +35,7 @@ export function scanDir(root: string, opts: ScanOptions = {}, currentDepth = 0):
 		const fullPath = join(root, name);
 		let stat: Stats;
 		try {
-			stat = statSync(fullPath);
+			stat = lstatSync(fullPath);
 		} catch {
 			continue;
 		}
@@ -80,7 +80,12 @@ export function scanDir(root: string, opts: ScanOptions = {}, currentDepth = 0):
 }
 
 export function dirSize(dirPath: string): number {
-	const { blockSize } = resolveConfig();
+	return sumDir(dirPath, resolveConfig().blockSize);
+}
+
+// lstat, not stat: symlinks are not followed, matching du. Following them
+// double-counts linked data and loops forever on a link to a parent folder.
+function sumDir(dirPath: string, blockSize: number): number {
 	let total = 0;
 	let items: string[];
 	try {
@@ -91,11 +96,11 @@ export function dirSize(dirPath: string): number {
 	for (const name of items) {
 		const fullPath = join(dirPath, name);
 		try {
-			const stat = statSync(fullPath);
+			const stat = lstatSync(fullPath);
 			if (stat.isFile()) {
 				total += stat.blocks * blockSize;
 			} else if (stat.isDirectory()) {
-				total += dirSize(fullPath);
+				total += sumDir(fullPath, blockSize);
 			}
 		} catch {}
 	}

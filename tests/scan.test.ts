@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -29,6 +29,17 @@ describe("dirSize", () => {
 		const nested = dirSize(join(root, "nested"));
 		expect(total).toBeGreaterThan(nested);
 		expect(total).toBeGreaterThanOrEqual(11000);
+	});
+
+	it("does not follow symlinks, so a link to a parent cannot loop", () => {
+		const root = makeTempDir();
+		mkdirSync(join(root, "nested"));
+		writeFileSync(join(root, "nested", "b.txt"), Buffer.alloc(6000));
+		symlinkSync(root, join(root, "nested", "loop"));
+
+		const withLink = dirSize(root);
+		rmSync(join(root, "nested", "loop"));
+		expect(withLink).toBe(dirSize(root));
 	});
 });
 

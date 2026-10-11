@@ -1,19 +1,19 @@
 import { resolve } from "node:path";
 import chalk from "chalk";
 import { resolveConfig } from "../utils/config.js";
-import { getDiskInfo } from "../utils/disk.js";
+import { getDiskInfo, usedRatio } from "../utils/disk.js";
 import { boxTable, colorSize, formatPercent, formatSize } from "../utils/format.js";
 import { scanDir } from "../utils/scan.js";
 
 interface OverviewOptions {
-	top: string;
+	top: number;
 	path: string;
 	json?: boolean;
 }
 
 export function overview(opts: OverviewOptions): void {
 	const { overviewDepth } = resolveConfig();
-	const count = Number.parseInt(opts.top, 10);
+	const count = opts.top;
 	const targetPath = resolve(opts.path);
 
 	const disks = getDiskInfo();
@@ -50,7 +50,7 @@ export function overview(opts: OverviewOptions): void {
 		formatSize(d.total),
 		colorSize(d.used),
 		colorSize(d.available),
-		formatPercent(d.used / d.total),
+		formatPercent(usedRatio(d)),
 	]);
 	console.log(boxTable(["Mount", "Total", "Used", "Available", "Use%"], diskRows));
 

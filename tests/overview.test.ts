@@ -10,7 +10,7 @@ describe("overview", () => {
 		const logs: string[] = [];
 		vi.spyOn(console, "log").mockImplementation((...args) => logs.push(args.join(" ")));
 
-		overview({ top: "5", path: ".", json: true });
+		overview({ top: 5, path: ".", json: true });
 
 		const output = JSON.parse(logs.join(""));
 		expect(output).toHaveProperty("disks");
@@ -23,7 +23,7 @@ describe("overview", () => {
 		const logs: string[] = [];
 		vi.spyOn(console, "log").mockImplementation((...args) => logs.push(args.join(" ")));
 
-		overview({ top: "3", path: ".", json: true });
+		overview({ top: 3, path: ".", json: true });
 
 		const output = JSON.parse(logs.join(""));
 		expect(output.topItems.length).toBeLessThanOrEqual(3);
@@ -33,7 +33,7 @@ describe("overview", () => {
 		const logs: string[] = [];
 		vi.spyOn(console, "log").mockImplementation((...args) => logs.push(args.join(" ")));
 
-		overview({ top: "5", path: ".", json: true });
+		overview({ top: 5, path: ".", json: true });
 
 		const output = JSON.parse(logs.join(""));
 		for (const disk of output.disks) {

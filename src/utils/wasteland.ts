@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { resolveCacheNames, resolveConfig, resolveTargets } from "./config.js";
@@ -82,9 +82,9 @@ export function findWaste(): WasteEntry[] {
 }
 
 export function findNodeModules(root: string, maxDepth?: number): WasteEntry[] {
-	const depth = maxDepth ?? resolveConfig().nodeModulesMaxDepth;
+	const { nodeModulesMaxDepth, opaqueDirectories } = resolveConfig();
 	const results: WasteEntry[] = [];
-	searchNodeModules(root, results, 0, depth);
+	searchNodeModules(root, results, 0, maxDepth ?? nodeModulesMaxDepth, new Set(opaqueDirectories));
 	return results.sort((a, b) => b.size - a.size);
 }
 
@@ -93,11 +93,9 @@ function searchNodeModules(
 	results: WasteEntry[],
 	depth: number,
 	maxDepth: number,
+	opaqueSet: Set<string>,
 ): void {
 	if (depth > maxDepth) return;
-
-	const { opaqueDirectories } = resolveConfig();
-	const opaqueSet = new Set(opaqueDirectories);
 
 	let items: string[];
 	try {
@@ -127,9 +125,9 @@ function searchNodeModules(
 		if (opaqueSet.has(name)) continue;
 
 		try {
-			const stat = statSync(fullPath);
+			const stat = lstatSync(fullPath);
 			if (stat.isDirectory()) {
-				searchNodeModules(fullPath, results, depth + 1, maxDepth);
+				searchNodeModules(fullPath, results, depth + 1, maxDepth, opaqueSet);
 			}
 		} catch {}
 	}
